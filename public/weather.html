@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang=ko>
+<head>
+<meta charset="utf-8">
+<title>weather</title>
+<link rel="stylesheet" href="stylesheets/style.css">
+</head>
+
+<body>
+
+<table>
+	<tr align="center">
+		<td><div id="disp_cal" class="calendar"></div></td>
+		<td><div id="top_clock" class="topClock"></div></td>
+		<td>&nbsp; &nbsp; </td>
+		<td>|</td>
+		<td><div class="active"> Weather </div></td><td>|</td>
+		<td> Album    </td><td>|</td>
+		<td> Schedule </td><td>|</td>
+		<td> Subway   </td><td>|</td>
+		<td>&nbsp; &nbsp; </td>
+		<td width="65"><div id="temper" class="temperature"></div></td>
+		<td width="50"><img id="icon" src="./images/icons/000.png" height="50" width="50" ></td>
+	</tr>
+</table>
+
+<hr color="#999"/>
+
+
+<script src="javascripts/jquery-1.12.4.min.js"></script>
+<script src="javascripts/socket.io.js"></script>
+<script src="javascripts/clock.js"></script>
+<script src="javascripts/openweather.current.js"></script>
+<script src="javascripts/annyang.min.js"></script>
+<script src="javascripts/responsivevoice.js"></script>
+
+<script>
+	var baseURL = "api.openweathermap.org/data/2.5/forecast?";
+	var cityID  = "1835848";		// Seoul
+	var appKey  = "";
+	//http://api.openweathermap.org/data/2.5/forecast?id=1835848&appid=
+	var url = "http://" + baseURL + "id=" + cityID + "&appid=" + appKey;
+
+	$.getJSON(url, function(data) {
+		var __temp = '';
+		var __num = '';
+		var __hour = '';
+		var __date = '';
+		var __time = '';
+		var __img_url = '';
+
+		var __html = '<br/><table width="800"><tr align="center"><td colspan=8><h2>Weather</h2></td></tr>';
+		
+		for(var i=0; i < data.list.length; i++ ){
+			__temp = (parseFloat(data.list[i].main.temp)-273.0).toFixed(1)+" °C";
+			__num = parseInt(data.list[i].weather[0].id);
+			__hour = parseInt(data.list[i].dt_txt.substr(11,2));
+			__date = data.list[i].dt_txt.substr(5,5).replace("-"," / ");
+			__time = (Number(__hour) < 10)?'0'+__hour+' : 00':__hour+' : 00';
+			__img_url = getIcon(__num, __hour);
+
+			if(i%8 == 0){
+				__html += '<tr align="center">'
+			}
+
+			__html += '<td width="100">';
+			__html += '	<p class="date">'+__date+'</p>';
+			__html += '	<p class="time">'+__time+'</p>';
+			__html += '	<p class="temp">'+__temp+'</p>';
+			__html += ' <img src="'+__img_url+'" height="75" width="75">';
+			__html += '</td>';
+
+			if(i%8 == 7){
+				__html += '</tr>'
+			}
+		}
+
+		if(data.list.length%8 != 0) {
+			for(var j=0; j <= data.list.length%5; j++ ){
+				__html += '<td width="100"></td>';
+			}
+			__html += '</tr>';
+		}
+		__html += '</table>';
+
+		$('hr').after(__html);
+	});
+
+	function getIcon(num, hour) {
+		if     ( num >= 200 && num < 300 )	return "images/icons/2xx.png";
+		else if( num >= 300 && num < 400 )	return "images/icons/3xx.png";
+		else if( num >= 500 && num < 510 ) {
+			if( hour >= 6 && hour < 19 )	return "images/icons/50x.png";
+			else							return "images/icons/50xn.png";
+		}
+		else if( num == 511              )	return "images/icons/511.png";
+		else if( num >= 520 && num < 600 )	return "images/icons/52x.png";
+		else if( num >= 600 && num < 700 )	return "images/icons/6xx.png";
+		else if( num >= 700 && num < 800 )	return "images/icons/7xx.png";
+		else if( num == 800              ) {
+			if( hour >= 6 && hour < 19 )	return "images/icons/800.png";
+			else							return "images/icons/800n.png";
+		}
+		else if( num == 801              ) {
+			if( hour >= 6 && hour < 19 )	return "images/icons/801.png";
+			else							return "images/icons/801n.png";
+		}
+		else if( num == 802              )	return "images/icons/802.png";
+		else if( num == 803              )	return "images/icons/803.png";
+		else if( num == 804              )	return "images/icons/804.png";
+		else								return "images/icons/000.png";
+	}
+</script>
+
+<script>
+$(document).ready(function()
+{
+    if (annyang)
+	{
+        var commands = {
+            '넌 누구니':function(){
+                responsiveVoice.speak("라즈베리파이 스마트미러다", "Korean Female");
+            },
+            '메뉴':function(){
+				responsiveVoice.speak("메뉴 및 사용법이다", "Korean Female");
+				window.location.replace("index.html");
+            },
+            '날씨':function(){
+				responsiveVoice.speak("일기예보다", "Korean Female");
+				window.location.replace("weather.html");
+            },
+            '사진':function(){
+				responsiveVoice.speak("포토앨범이다", "Korean Female"); 
+				window.location.replace("album.html");
+            },
+            '달력':function(){
+				responsiveVoice.speak("월간일정이다", "Korean Female");
+				window.location.replace("calendar.html");
+            },
+            '지하철':function(){
+				responsiveVoice.speak("서울 지하철 노선도다", "Korean Female");
+				window.location.replace("subway.html");
+            },
+            '거울':function(){
+				responsiveVoice.speak("거울 모드다", "Korean Female");
+				window.location.replace("blank.html");
+            },
+            '사용법':function(){
+				responsiveVoice.speak("사용법이다", "Korean Female");
+				window.location.replace("index.html");
+            }
+        };
+        annyang.addCommands(commands);
+        annyang.removeCallback();
+        annyang.setLanguage('ko');
+        annyang.start({ autoRestart: true, continuous: false });
+    }
+});
+</script>
+
+<script>
+	$(function(){
+		var socket = io();
+		socket.on('url data', function(url_data){
+			window.location.replace(url_data);
+		});
+	});
+</script>
+</body>
+</html>
