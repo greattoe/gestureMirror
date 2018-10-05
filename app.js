@@ -24,11 +24,11 @@ gesture.watch(function (err, val)			// chkIn = 1(01) down
 	var _bit1 = input1.readSync();			// chkIn = 3(11) right
 	var _bit0 = input0.readSync();
 	
-	if(_bit1 == 0)	chkIn &= ~2;
-	else			chkIn |=  2;	
+	if(_bit1 == 0)	chkIn &= ~2;			// xx0x
+	else			chkIn |=  2;			// xx1x
 	
-	if(_bit0 == 0)	chkIn &= ~1;
-	else			chkIn |=  1;
+	if(_bit0 == 0)	chkIn &= ~1;			// xxx0
+	else			chkIn |=  1;			// xxx1
 	
 	console.log('input : ' + chkIn );
 	selContents();
